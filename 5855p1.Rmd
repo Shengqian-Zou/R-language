@@ -1,0 +1,78 @@
+---
+title: "5855 Assignment 2 Part1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Student:Shengqian Zou  Student ID:z5203970
+
+a
+```{r, message=FALSE, warning=FALSE}
+library(ggm)
+
+Sigma <- matrix(c(209, -55, -12, 0, -55, 363, -10, 13, -12, -10, 52, -52, 0, 13, -52, 169), 4, 4)
+ans_a <- pcor(c(1:2,3:4), Sigma)
+ans_a
+```
+
+b
+```{r}
+PCCs <- cov2cor(Sigma)
+PCCs
+ans_b <- 1-1/solve(PCCs)[1,1]
+ans_b
+```
+
+c_i
+```{r}
+matpow <- function(A, p){
+  with(eigen(A), vectors %*% diag(values^p, nrow(A)) %*% t(vectors))
+}
+(ccdecomp <- eigen(matpow(PCCs[3:4,3:4],-1/2) %*% PCCs[3:4,1:2] %*% solve(PCCs[1:2,1:2]) %*% PCCs[1:2,3:4] %*% matpow(PCCs[3:4,3:4],-1/2)))
+ans_c_i <- sqrt(ccdecomp$values)
+ans_c_i
+```
+
+c_ii
+```{r, message=FALSE, warning=FALSE}
+library(CCP)
+n1 <- 2
+n2 <- 2
+s <- 30
+ans_c_ii <- p.asym(ans_c_i, s, n1, n2, tstat = "Wilks")
+```
+
+d_i
+```{r}
+Sigma_eigen <- eigen(PCCs)
+ans_d_i_1 <- Sigma_eigen$vectors[,1]
+ans_d_i_2 <- Sigma_eigen$vectors[,2]
+ans_d_i_1
+ans_d_i_2
+```
+
+d_ii
+```{r}
+pcvars <- Sigma_eigen$values
+(var.explained <- cumsum(pcvars)/sum(pcvars))
+ans_d_ii <- min(which(var.explained>=0.9))
+ans_d_ii
+```
+
+d_iii
+```{r}
+# According to the Kaiser’s rule:c=90%
+ans_d_iii <- max(which(pcvars>=sum(pcvars)/4))
+ans_d_iii
+```
+
+d_iv
+```{r}
+E2 <- eigen(PCCs)
+pcvars <- E2$values
+ans_d_iv <- (var.explained <- pcvars/sum(pcvars))
+ans_d_iv
+```
